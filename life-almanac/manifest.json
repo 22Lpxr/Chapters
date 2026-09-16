@@ -1,0 +1,14 @@
+﻿{
+  "name": "Chapters",
+  "short_name": "Chapters",
+  "description": "Plan your day, build better habits, track your mood, and journal your thoughts.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E7E4D9",
+  "theme_color": "#E7E4D9",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,403 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+/* ═══════════ KEYFRAMES ═══════════ */
+@keyframes checkPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(20px); }
+}
+@keyframes barGrow {
+  from { height: 0%; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes savedSlide {
+  0% { opacity: 0; transform: translateX(10px); }
+  15% { opacity: 1; transform: translateX(0); }
+  85% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(10px); }
+}
+@keyframes pulseGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+@keyframes dotPop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+/* ═══════════ VARIABLES ═══════════ */
+:root{
+  --paper:#E7E4D9;
+  --paper-2:#DEDACC;
+  --ink:#26241F;
+  --ink-soft:#5B5850;
+  --line:#C9C4B2;
+  --gold:#B8863C;
+  --sage:#5F7A5C;
+  --storm:#3F5A73;
+  --card:#F1EEE3;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-hover: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+}
+body.dark{
+  --paper:#1E1D19;
+  --paper-2:#26241E;
+  --ink:#EDE9DD;
+  --ink-soft:#AFA996;
+  --line:#3C3A31;
+  --gold:#DDAE5E;
+  --sage:#7FA37C;
+  --storm:#7FA0BC;
+  --card:#26241E;
+  --shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.15);
+  --shadow-hover: 0 4px 12px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* ═══════════ RESET & BASE ═══════════ */
+*{box-sizing:border-box;}
+
+/* ── Remove I-beam caret from everything non-editable ── */
+* { cursor: default; }
+
+/* Editable elements get their own cursors back */
+input, textarea { cursor: text; }
+button, [onclick],
+.sky .opt, .habitRow .check, .habitRow .rm,
+.schedItem .del, .calCell:not(.blank):not(.future),
+.nothingBtn, .themeBtn, .datenav button,
+.monthNav button, .pageNav button,
+.addRow button, .habitAdd button, .saveBtn {
+  cursor: pointer;
+}
+input:disabled, textarea:disabled, button:disabled { cursor: not-allowed; }
+
+/* Prevent text selection on UI elements */
+button, label, h1, h2, h3, nav, header,
+.panel h2, .notesTitle, .head h1, .head .sub,
+.dateLabel, .monthLabel,
+.sky .opt, .sky span,
+.schedItem .time, .schedItem .task span,
+.habitRow .name, .habitRow .rm, .habitRow .trail,
+.pageNav button, .lockBanner, .savedTag,
+.growth h2, .trailLabels span,
+.calCell, .calWeekdays span,
+.barStat .lbl, .streakLine,
+.moodBars .mb span, .empty {
+  user-select: none;
+  -webkit-user-select: none;
+}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Inter',sans-serif;
+  padding:32px 20px 60px;
+  transition: background .3s ease, color .3s ease;
+  scroll-behavior: smooth;
+}
+.wrap{max-width:960px;margin:0 auto;}
+
+/* ═══════════ HEADER ═══════════ */
+.head{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid var(--ink); padding-bottom:14px; margin-bottom:16px; gap:12px; flex-wrap:wrap; transition: border-color .3s;}
+.head h1{font-family:'Fraunces',serif; font-weight:600; font-size:32px; margin:0; letter-spacing:0.5px;}
+.head .sub{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:1px; transition: color .3s;}
+.headRight{display:flex; align-items:center; gap:10px;}
+.datenav{display:flex; align-items:center; gap:10px;}
+.datenav button{
+  background:none; border:1px solid var(--ink); color:var(--ink);
+  font-family:'IBM Plex Mono',monospace; width:28px; height:28px; border-radius:50%;
+  cursor:pointer; font-size:14px;
+  transition: all .2s ease;
+}
+.datenav button:hover{background:var(--ink); color:var(--paper); transform: scale(1.1);}
+.datenav button:active{transform: scale(0.95);}
+.datenav button:disabled{opacity:0.3; cursor:not-allowed; background:none; color:var(--ink); transform:none;}
+.dateLabel{font-family:'Fraunces',serif; font-size:18px; min-width:150px; text-align:center; transition: color .3s;}
+.themeBtn{
+  background:none; border:1px solid var(--ink); color:var(--ink);
+  width:32px; height:32px; border-radius:16px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition: all .3s ease;
+}
+.themeBtn:hover{background:var(--ink); color:var(--paper); transform: rotate(20deg) scale(1.1);}
+.themeBtn:active{transform: scale(0.9);}
+.themeBtn svg{width:16px;height:16px; transition: transform .3s;}
+
+/* ═══════════ PAGE NAV ═══════════ */
+.pageNav{display:flex; gap:0; border:1px solid var(--ink); border-radius:20px; overflow:hidden; width:fit-content; margin-bottom:20px; transition: border-color .3s;}
+.pageNav button{
+  font-family:'IBM Plex Mono',monospace; font-size:12px; text-transform:uppercase;
+  letter-spacing:1px; padding:7px 18px; background:none; border:none;
+  color:var(--ink-soft); cursor:pointer;
+  transition: all .25s ease;
+}
+.pageNav button:hover:not(.active){background: var(--paper-2);}
+.pageNav button.active{background:var(--ink); color:var(--paper);}
+
+/* ═══════════ LOCK BANNER ═══════════ */
+.lockBanner{
+  display:none; align-items:center; gap:8px; background:var(--card);
+  border:1px solid var(--gold); color:var(--gold); font-size:13px;
+  padding:10px 14px; border-radius:8px; margin-bottom:18px;
+  transition: background .3s, border-color .3s;
+}
+.lockBanner.show{display:flex; animation: fadeIn .3s ease;}
+
+/* ═══════════ PAGES (fade transitions) ═══════════ */
+section{transition: opacity .25s ease, transform .25s ease;}
+section.page-enter{animation: fadeIn .3s ease forwards;}
+
+/* ═══════════ SKY / MOOD ═══════════ */
+.sky{
+  display:flex; justify-content:space-between;
+  border:1px solid var(--line); border-radius:10px; padding:14px 18px;
+  margin-bottom:24px; background:var(--card);
+  box-shadow: var(--shadow);
+  transition: background .3s, border-color .3s, box-shadow .3s;
+}
+.sky .opt{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  cursor:pointer; opacity:0.55;
+  transition: opacity .2s, transform .2s;
+}
+.sky .opt:hover{opacity:0.8; transform: translateY(-3px);}
+.sky .opt.active{opacity:1; animation: pulseGlow 2s ease-in-out infinite;}
+.sky.locked .opt{cursor:not-allowed;}
+.sky.locked .opt:hover{transform:none; opacity:0.55;}
+.sky svg{width:30px;height:30px; transition: transform .2s;}
+.sky .opt:hover svg{transform: scale(1.15);}
+.sky span{font-size:10px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); text-transform:uppercase; transition: color .3s;}
+
+/* ═══════════ GRID ═══════════ */
+.grid{display:grid; grid-template-columns:1.3fr 1fr; gap:22px;}
+@media(max-width:640px){.grid{grid-template-columns:1fr;}}
+
+/* ═══════════ PANEL ═══════════ */
+.panel{
+  background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px;
+  box-shadow: var(--shadow);
+  transition: background .3s, border-color .3s, box-shadow .3s, transform .2s;
+}
+.panel:hover{box-shadow: var(--shadow-hover); transform: translateY(-1px);}
+.panel h2{font-family:'Fraunces',serif; font-size:16px; font-weight:600; margin:0 0 14px; display:flex; align-items:center; gap:8px;}
+.panel h2::before{content:''; width:6px;height:6px;border-radius:50%;background:var(--gold); display:inline-block; transition: background .3s;}
+
+/* ═══════════ SCHEDULE ═══════════ */
+.spine{position:relative; padding-left:16px; border-left:2px solid var(--line); margin-bottom:14px; transition: border-color .3s;}
+.schedItem{position:relative; margin-bottom:12px; padding-left:4px; animation: slideIn .3s ease backwards;}
+.schedItem:nth-child(1){animation-delay:0s;}
+.schedItem:nth-child(2){animation-delay:.05s;}
+.schedItem:nth-child(3){animation-delay:.1s;}
+.schedItem:nth-child(4){animation-delay:.15s;}
+.schedItem:nth-child(5){animation-delay:.2s;}
+.schedItem.removing{animation: slideOut .25s ease forwards;}
+.schedItem::before{content:''; position:absolute; left:-21px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--gold); border:2px solid var(--card); transition: background .3s, border-color .3s;}
+.schedItem .time{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--gold); font-weight:500; transition: color .3s;}
+.schedItem .task{font-size:14px; margin-top:2px; display:flex; justify-content:space-between; align-items:center; gap:8px;}
+.schedItem .task .del{cursor:pointer; color:var(--ink-soft); font-size:12px; opacity:0.4; transition: all .2s;}
+.schedItem .task .del:hover{opacity:1; color:var(--storm); transform: scale(1.2);}
+.empty{font-size:13px; color:var(--ink-soft); font-style:italic; padding:6px 0;}
+
+/* ═══════════ INPUTS & BUTTONS ═══════════ */
+.addRow{display:flex; gap:6px; margin-top:8px;}
+.addRow input[type=time]{width:100px;}
+.addRow input[type=text]{flex:1;}
+input, textarea{
+  font-family:inherit; font-size:13px; border:1px solid var(--line); border-radius:6px;
+  padding:7px 9px; background:var(--paper-2); color:var(--ink);
+  transition: border-color .2s, background .3s, box-shadow .2s;
+}
+input:focus, textarea:focus{outline:none; border-color:var(--gold); box-shadow: 0 0 0 3px rgba(184,134,60,0.15);}
+input:disabled, textarea:disabled{opacity:0.5; cursor:not-allowed;}
+.addRow button, .habitAdd button, .nothingBtn{
+  border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+  border-radius:6px; padding:0 12px; cursor:pointer; font-size:13px;
+  transition: all .2s ease;
+}
+.addRow button:hover, .habitAdd button:hover{background:var(--gold); border-color:var(--gold); transform: scale(1.05);}
+.addRow button:active, .habitAdd button:active{transform: scale(0.95);}
+.addRow button:disabled, .habitAdd button:disabled{opacity:0.4; cursor:not-allowed; background:var(--ink); transform:none;}
+
+/* ═══════════ HABITS ═══════════ */
+.habitRow{
+  display:flex; align-items:center; gap:10px; padding:8px 0;
+  border-bottom:1px solid var(--line);
+  transition: border-color .3s;
+  animation: slideIn .3s ease backwards;
+}
+.habitRow:nth-child(1){animation-delay:0s;}
+.habitRow:nth-child(2){animation-delay:.04s;}
+.habitRow:nth-child(3){animation-delay:.08s;}
+.habitRow:nth-child(4){animation-delay:.12s;}
+.habitRow:last-of-type{border-bottom:none;}
+.habitRow .check{
+  width:20px;height:20px; border:2px solid var(--sage); border-radius:5px;
+  cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  transition: all .2s ease;
+}
+.habitRow .check:hover{border-color:var(--gold); transform: scale(1.1);}
+.habitRow .check.done{background:var(--sage); animation: checkPop .35s ease;}
+.habitRow .check.done::after{content:'\2713'; color:var(--card); font-size:12px;}
+.habitRow .check.disabled{cursor:not-allowed; opacity:0.5;}
+.habitRow .check.disabled:hover{transform:none; border-color:var(--sage);}
+.habitRow .name{flex:1; font-size:14px;}
+.habitRow .trail{display:flex; gap:3px; align-items:center;}
+.habitRow .trail .dot{
+  width:7px;height:7px;border-radius:50%; background:var(--line);
+  transition: background .3s, transform .2s;
+}
+.habitRow .trail .dot.on{background:var(--sage); animation: dotPop .3s ease backwards;}
+.habitRow .trail .dot.on:nth-child(1){animation-delay:0s;}
+.habitRow .trail .dot.on:nth-child(2){animation-delay:.03s;}
+.habitRow .trail .dot.on:nth-child(3){animation-delay:.06s;}
+.habitRow .trail .dot.on:nth-child(4){animation-delay:.09s;}
+.habitRow .trail .dot.on:nth-child(5){animation-delay:.12s;}
+.habitRow .trail .dot.on:nth-child(6){animation-delay:.15s;}
+.habitRow .trail .dot.on:nth-child(7){animation-delay:.18s;}
+.habitRow .rm{color:var(--ink-soft); opacity:0.4; cursor:pointer; font-size:12px; transition: all .2s;}
+.habitRow .rm:hover{opacity:1; color:var(--storm); transform: scale(1.3);}
+
+.habitAdd{display:flex; gap:6px; margin-top:12px;}
+.habitAdd input{flex:1;}
+
+/* ═══════════ JOURNAL ═══════════ */
+.notes{margin-top:18px;}
+.notesTitle{font-family:'Fraunces',serif; font-size:16px; font-weight:600; margin:0 0 10px; display:flex; align-items:center; gap:8px;}
+.notesTitle::before{content:''; width:6px;height:6px;border-radius:50%;background:var(--gold); display:inline-block; transition: background .3s;}
+.notes textarea{
+  width:100%; min-height:100px; resize:vertical;
+  font-family:'Fraunces',serif; font-style:italic; font-size:14px; line-height:1.5;
+  transition: border-color .2s, background .3s, box-shadow .2s, min-height .3s ease;
+}
+
+.nothingRow{display:flex; align-items:center; gap:10px; margin-top:10px;}
+.nothingBtn{padding:7px 14px; font-size:12px; transition: all .25s ease;}
+.nothingBtn:hover{background:var(--gold); border-color:var(--gold);}
+.nothingBtn.active{background:var(--sage); border-color:var(--sage);}
+.nothingBtn:disabled{opacity:0.4; cursor:not-allowed;}
+.saveBtn{
+  border:1px solid var(--sage); background:var(--sage); color:#fff;
+  border-radius:6px; padding:7px 18px; cursor:pointer;
+  font-family:'IBM Plex Mono',monospace; font-size:12px;
+  transition: all .2s ease;
+}
+.saveBtn:hover{transform: scale(1.05); box-shadow: 0 2px 8px rgba(95,122,92,0.3);}
+.saveBtn:active{transform: scale(0.95);}
+.saveBtn:disabled{opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none;}
+.saveBtn.saved{background:var(--gold); border-color:var(--gold);}
+
+/* ═══════════ GROWTH TRAIL ═══════════ */
+.growth{
+  margin-top:24px; padding:16px 20px; border:1px solid var(--line); border-radius:10px;
+  background:var(--card); box-shadow: var(--shadow);
+  transition: background .3s, border-color .3s, box-shadow .3s;
+}
+.growth h2{font-family:'Fraunces',serif; font-size:15px; font-weight:600; margin:0 0 12px;}
+.trailRow{display:flex; align-items:flex-end; gap:5px; height:52px;}
+.trailRow .bar{flex:1; border-radius:3px 3px 0 0; background:var(--line); position:relative; min-width:0; transition: background .3s;}
+.trailRow .bar .fill{
+  position:absolute; bottom:0; left:0; right:0; border-radius:3px 3px 0 0;
+  animation: barGrow .6s ease backwards;
+  transition: background .3s;
+}
+.trailRow .bar:nth-child(1) .fill{animation-delay:0s;}
+.trailRow .bar:nth-child(2) .fill{animation-delay:.03s;}
+.trailRow .bar:nth-child(3) .fill{animation-delay:.06s;}
+.trailRow .bar:nth-child(4) .fill{animation-delay:.09s;}
+.trailRow .bar:nth-child(5) .fill{animation-delay:.12s;}
+.trailRow .bar:nth-child(6) .fill{animation-delay:.15s;}
+.trailRow .bar:nth-child(7) .fill{animation-delay:.18s;}
+.trailRow .bar:nth-child(8) .fill{animation-delay:.21s;}
+.trailRow .bar:nth-child(9) .fill{animation-delay:.24s;}
+.trailRow .bar:nth-child(10) .fill{animation-delay:.27s;}
+.trailRow .bar:nth-child(11) .fill{animation-delay:.3s;}
+.trailRow .bar:nth-child(12) .fill{animation-delay:.33s;}
+.trailRow .bar:nth-child(13) .fill{animation-delay:.36s;}
+.trailRow .bar:nth-child(14) .fill{animation-delay:.39s;}
+.trailRow .bar:hover{transform: scaleY(1.08); transform-origin: bottom;}
+.trailLabels{display:flex; gap:5px; margin-top:5px;}
+.trailLabels span{flex:1; text-align:center; font-size:9px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); transition: color .3s;}
+
+/* ═══════════ SAVED TAG ═══════════ */
+.savedTag{
+  font-size:11px; color:var(--sage); font-family:'IBM Plex Mono',monospace;
+  text-align:right; margin-top:6px; height:14px;
+  transition: color .3s;
+}
+.savedTag.show{animation: savedSlide 1.5s ease forwards;}
+
+/* ═══════════ OVERVIEW — MONTH NAV ═══════════ */
+.monthNav{display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:16px;}
+.monthNav button{
+  background:none; border:1px solid var(--ink); color:var(--ink);
+  width:28px; height:28px; border-radius:50%; cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;
+  transition: all .2s ease;
+}
+.monthNav button:hover{background:var(--ink); color:var(--paper); transform: scale(1.1);}
+.monthNav button:active{transform: scale(0.95);}
+.monthNav button:disabled{opacity:0.3; cursor:not-allowed; background:none; color:var(--ink); transform:none;}
+.monthLabel{font-family:'Fraunces',serif; font-size:18px; min-width:160px; text-align:center; transition: color .3s;}
+
+/* ═══════════ CALENDAR ═══════════ */
+.calWeekdays{display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:6px;}
+.calWeekdays span{text-align:center; font-size:10px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); text-transform:uppercase;}
+.calGrid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:26px;}
+.calCell{
+  aspect-ratio:1; border-radius:6px; border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft);
+  cursor:pointer; position:relative;
+  transition: all .2s ease;
+}
+.calCell:hover:not(.blank):not(.future){
+  border-color:var(--gold); transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.calCell.blank{border:none; cursor:default;}
+.calCell.today{border:2px solid var(--gold); font-weight:600; color:var(--gold);}
+.calCell.future{cursor:not-allowed; opacity:0.35;}
+
+/* ═══════════ STATS ═══════════ */
+.statsGrid{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+@media(max-width:640px){.statsGrid{grid-template-columns:1fr;}}
+.statsGrid .fullWidth{grid-column: 1 / -1;}
+.barStat{margin-bottom:12px;}
+.barStat .lbl{display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;}
+.barStat .lbl .pct{font-family:'IBM Plex Mono',monospace; color:var(--gold); transition: color .3s;}
+.barTrack{height:6px; background:var(--line); border-radius:3px; overflow:hidden; transition: background .3s;}
+.barTrack .fill{height:100%; background:var(--sage); border-radius:3px; transition: width .5s ease, background .3s;}
+.streakLine{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:6px 0; border-bottom:1px solid var(--line); font-size:13px;
+  transition: border-color .3s;
+}
+.streakLine:last-child{border-bottom:none;}
+.streakLine .num{font-family:'Fraunces',serif; font-size:20px; color:var(--gold); transition: color .3s;}
+.moodBars{display:flex; align-items:flex-end; gap:10px; height:90px; margin-top:8px;}
+.moodBars .mb{flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; justify-content:flex-end; height:100%;}
+.moodBars .mb .col{width:100%; border-radius:3px 3px 0 0; animation: barGrow .5s ease backwards; transition: background .3s;}
+.moodBars .mb:nth-child(1) .col{animation-delay:0s;}
+.moodBars .mb:nth-child(2) .col{animation-delay:.08s;}
+.moodBars .mb:nth-child(3) .col{animation-delay:.16s;}
+.moodBars .mb:nth-child(4) .col{animation-delay:.24s;}
+.moodBars .mb:nth-child(5) .col{animation-delay:.32s;}
+.moodBars .mb span{font-size:9px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft);}
+
+/* ═══════════ FOCUS ═══════════ */
+:focus-visible{outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px;}
+button:focus-visible{outline-offset: 2px;}
+
+/* ═══════════ UTILITY ═══════════ */
+.hidden{display:none;}
