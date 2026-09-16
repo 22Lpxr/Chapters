@@ -168,8 +168,8 @@ function weatherScore(w) {
 
 function renderTrail() {
     saveDay(fmtDate(currentDate), dayData);
-    const keys = Array.from({length: 14}, (_, i) => {
-        const d = new Date(currentDate); d.setDate(d.getDate() - (13 - i)); return fmtDate(d);
+    const keys = Array.from({length: 7}, (_, i) => {
+        const d = new Date(currentDate); d.setDate(d.getDate() - (6 - i)); return fmtDate(d);
     });
 
     const bars = document.getElementById('trailBars');

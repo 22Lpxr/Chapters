@@ -5,7 +5,7 @@ const strings = {
   cultivationTitle: "Daily Routine", habitPlaceholder: "A habit worth building",
   diaryTitle: "Journal", diaryPlaceholder: "How did today go?",
   nothingBtn: "Quiet day, nothing to note", nothingBtnActive: "Marked as quiet \u2014 tap to undo",
-  growthTitle: "Your last 14 days",
+  growthTitle: "Your last 7 days",
   emptySchedule: "Nothing on the schedule yet.",
   removeLabel: "\u00d7",
   lockMsg: "This day hasn't arrived yet \u2014 check back when it does.",
