@@ -444,12 +444,7 @@ button:focus-visible{outline-offset:2px;}
     <!-- FINANCE PANEL -->
     <div class="finPanel" id="finPanel">
       <div class="finHead">
-        <div class="finTitle">Finances</div>
-        <span class="finNet zero" id="finNetBadge">฿ 0</span>
-      </div>
-      <div class="finTypeRow">
-        <button class="finTypeBtn expense active" id="finExpBtn">− Expense</button>
-        <button class="finTypeBtn income" id="finIncBtn">+ Income</button>
+        <div class="finTitle">Spending</div>
       </div>
       <div class="finAddRow">
         <select id="finCatSel"></select>
@@ -744,10 +739,8 @@ function renderCalories(locked){
 
 // ═══════════ FINANCE CONSTANTS ═══════════
 const FIN_CATS = {
-  expense: ['Food','Transport','Shopping','Bills','Health','Entertainment','Other'],
-  income:  ['Salary','Freelance','Gift','Investment','Other']
+  expense: ['Food','Transport','Shopping','Bills','Health','Entertainment','Other']
 };
-let finState = { type: 'expense' };
 
 function fmt(n){ return (settings.currency||'฿')+' '+Math.abs(n).toLocaleString(); }
 
@@ -756,26 +749,19 @@ function renderFinance(locked){
   if(!dayData.finance) dayData.finance=[];
   const cur = settings.currency||'฿';
 
-  // Update category select based on current type
+  // Update category select (expenses only)
   const catSel = document.getElementById('finCatSel'); catSel.innerHTML='';
-  FIN_CATS[finState.type].forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; catSel.appendChild(o); });
-
-  // Net badge
-  const income = dayData.finance.filter(f=>f.type==='income').reduce((s,f)=>s+f.amt,0);
-  const expense = dayData.finance.filter(f=>f.type==='expense').reduce((s,f)=>s+f.amt,0);
-  const net = income - expense;
-  const badge = document.getElementById('finNetBadge');
-  badge.textContent = (net>0?'+':'')+cur+' '+net.toLocaleString();
-  badge.className = 'finNet '+(net>0?'pos':net<0?'neg':'zero');
+  FIN_CATS.expense.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; catSel.appendChild(o); });
 
   // Transaction list
   const list = document.getElementById('finList'); list.innerHTML='';
-  if(!dayData.finance.length){
-    list.innerHTML=`<div class="empty">No entries yet — log an expense or income.</div>`;
+  const entries = dayData.finance.filter(f=>f.type==='expense'||!f.type);
+  if(!entries.length){
+    list.innerHTML=`<div class="empty">No spending logged yet.</div>`;
   } else {
-    dayData.finance.forEach(f=>{
+    entries.forEach(f=>{
       const el=document.createElement('div'); el.className='finItem';
-      el.innerHTML=`<span class="finBadge ${f.type}">${f.type==='expense'?'−':'+'}${f.cat}</span><span class="finDesc">${escapeHtml(f.desc)}</span><span class="finAmt ${f.type}">${f.type==='expense'?'−':'+'}${cur} ${f.amt.toLocaleString()}</span>${locked?'':`<span class="finDel">\u00d7</span>`}`;
+      el.innerHTML=`<span class="finBadge expense">${f.cat}</span><span class="finDesc">${escapeHtml(f.desc)}</span><span class="finAmt expense">−${cur} ${f.amt.toLocaleString()}</span>${locked?'':`<span class="finDel">\u00d7</span>`}`;
       if(!locked) el.querySelector('.finDel').onclick=()=>{
         el.style.animation='slideOut .2s ease forwards';
         setTimeout(()=>{ dayData.finance=dayData.finance.filter(x=>x.id!==f.id); renderFinance(locked); scheduleSave(); },200);
@@ -784,10 +770,11 @@ function renderFinance(locked){
     });
   }
 
-  // Daily summary
+  // Daily total
+  const expense = entries.reduce((s,f)=>s+f.amt,0);
   const sumEl = document.getElementById('finSummary'); sumEl.innerHTML='';
-  if(dayData.finance.length){
-    sumEl.innerHTML=`<div class="fs"><div class="lbl">Spent</div><div class="val exp">${fmt(expense)}</div></div><div class="fs"><div class="lbl">Earned</div><div class="val inc">${fmt(income)}</div></div><div class="fs"><div class="lbl">Net</div><div class="val net ${net>=0?'pos':'neg'}">${net>=0?'+':'-'}${fmt(net)}</div></div>`;
+  if(entries.length){
+    sumEl.innerHTML=`<div class="fs"><div class="lbl">Total spent</div><div class="val exp">${fmt(expense)}</div></div>`;
   }
 
   // Lock inputs
@@ -795,8 +782,6 @@ function renderFinance(locked){
   document.getElementById('finDesc').disabled=locked;
   document.getElementById('finAmt').disabled=locked;
   document.getElementById('addFin').disabled=locked;
-  document.getElementById('finExpBtn').disabled=locked;
-  document.getElementById('finIncBtn').disabled=locked;
 }
 
 // ═══════════ RENDER ALL ═══════════
@@ -849,18 +834,6 @@ document.getElementById('calGoalInput').addEventListener('change',e=>{
 });
 
 // ─ Finance handlers ─
-document.getElementById('finExpBtn').onclick=()=>{
-  finState.type='expense';
-  document.getElementById('finExpBtn').classList.add('active');
-  document.getElementById('finIncBtn').classList.remove('active');
-  renderFinance(isFutureDate(currentDate));
-};
-document.getElementById('finIncBtn').onclick=()=>{
-  finState.type='income';
-  document.getElementById('finIncBtn').classList.add('active');
-  document.getElementById('finExpBtn').classList.remove('active');
-  renderFinance(isFutureDate(currentDate));
-};
 document.getElementById('addFin').onclick=()=>{
   if(isFutureDate(currentDate)) return;
   const cat=document.getElementById('finCatSel').value;
@@ -868,7 +841,7 @@ document.getElementById('addFin').onclick=()=>{
   const amt=parseFloat(document.getElementById('finAmt').value);
   if(!desc||isNaN(amt)||amt<=0) return;
   if(!dayData.finance) dayData.finance=[];
-  dayData.finance.push({id:crypto.randomUUID(),type:finState.type,cat,desc,amt});
+  dayData.finance.push({id:crypto.randomUUID(),type:'expense',cat,desc,amt});
   document.getElementById('finDesc').value='';
   document.getElementById('finAmt').value='';
   renderFinance(false); scheduleSave();
@@ -960,26 +933,23 @@ function renderOverview(){
   const fovEl=document.getElementById('finOverview'); fovEl.innerHTML='';
   const cur=settings.currency||'฿';
 
-  // Aggregate all finance entries for the month
-  let mIncome=0, mExpense=0;
+  // Aggregate expense entries for the month
+  let mExpense=0;
   const catTotals={};
   dataArr.forEach(d=>{
     if(!d||!d.finance) return;
     d.finance.forEach(f=>{
-      if(f.type==='income') mIncome+=f.amt;
-      else mExpense+=f.amt;
-      const key=f.type+':'+f.cat;
-      catTotals[key]=(catTotals[key]||0)+f.amt;
+      if(f.type==='expense'||!f.type){
+        mExpense+=f.amt;
+        catTotals[f.cat]=(catTotals[f.cat]||0)+f.amt;
+      }
     });
   });
-  const mNet=mIncome-mExpense;
 
-  // Summary cards
+  // Summary card
   const cards=document.createElement('div'); cards.className='finOverviewCards';
   cards.innerHTML=`
-    <div class="finCard income"><div class="fc-lbl">Income</div><div class="fc-val">${cur} ${mIncome.toLocaleString()}</div></div>
-    <div class="finCard expense"><div class="fc-lbl">Expenses</div><div class="fc-val">${cur} ${mExpense.toLocaleString()}</div></div>
-    <div class="finCard net"><div class="fc-lbl">Net</div><div class="fc-val ${mNet>=0?'pos':'neg'}">${mNet>=0?'+':''}${cur} ${mNet.toLocaleString()}</div></div>
+    <div class="finCard expense"><div class="fc-lbl">Total Spent</div><div class="fc-val">${cur} ${mExpense.toLocaleString()}</div></div>
   `;
   fovEl.appendChild(cards);
 
@@ -989,17 +959,16 @@ function renderOverview(){
     catDiv.innerHTML='<h3>By category</h3>';
     const maxVal=Math.max(...Object.values(catTotals));
     const sorted=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
-    sorted.forEach(([key,val],i)=>{
-      const [type,cat]=key.split(':');
+    sorted.forEach(([cat,val],i)=>{
       const pct=Math.round((val/maxVal)*100);
       const row=document.createElement('div'); row.className='barStat';
-      row.innerHTML=`<div class="lbl"><span>${cat} <span style="font-size:9px;opacity:.6">${type}</span></span><span class="pct">${cur} ${val.toLocaleString()}</span></div><div class="barTrack"><div class="fill" style="width:0%;background:${type==='expense'?'#c62828':'#2e7d32'}"></div></div>`;
+      row.innerHTML=`<div class="lbl"><span>${cat}</span><span class="pct">${cur} ${val.toLocaleString()}</span></div><div class="barTrack"><div class="fill" style="width:0%;background:#c62828"></div></div>`;
       catDiv.appendChild(row);
       const fill=row.querySelector('.fill'); requestAnimationFrame(()=>setTimeout(()=>fill.style.width=pct+'%',i*60));
     });
     fovEl.appendChild(catDiv);
   } else {
-    fovEl.innerHTML+=`<div class="empty">No finance entries this month yet.</div>`;
+    fovEl.innerHTML+=`<div class="empty">No spending logged this month yet.</div>`;
   }
 
   // Currency input
