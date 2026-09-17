@@ -90,7 +90,12 @@ function renderSky(locked) {
 function renderSchedule(locked) {
     const list = document.getElementById('schedList');
     list.innerHTML = '';
-    const sorted = [...dayData.schedule].sort((a, b) => a.time.localeCompare(b.time));
+    const sorted = [...dayData.schedule].sort((a, b) => {
+        if (a.time && b.time) return a.time.localeCompare(b.time);
+        if (a.time) return -1;
+        if (b.time) return 1;
+        return 0;
+    });
 
     if (sorted.length === 0) {
         list.innerHTML = `<div class="empty">${t('emptySchedule')}</div>`;
@@ -98,7 +103,7 @@ function renderSchedule(locked) {
         sorted.forEach(item => {
             const div = document.createElement('div');
             div.className = 'schedItem';
-            div.innerHTML = `<div class="time">${item.time}</div><div class="task"><span>${escapeHtml(item.task)}</span>${locked ? '' : `<span class="del">${t('removeLabel')}</span>`}</div>`;
+            div.innerHTML = `${item.time ? `<div class="time">${item.time}</div>` : ''}<div class="task"><span>${escapeHtml(item.task)}</span>${locked ? '' : `<span class="del">${t('removeLabel')}</span>`}</div>`;
             if (!locked) {
                 div.querySelector('.del').onclick = () => {
                     div.classList.add('removing');
@@ -112,7 +117,8 @@ function renderSchedule(locked) {
         });
     }
 
-    document.getElementById('timeInput').disabled = locked;
+    document.getElementById('hourSelect').disabled = locked;
+    document.getElementById('minSelect').disabled = locked;
     document.getElementById('taskInput').disabled = locked;
     document.getElementById('addSched').disabled = locked;
 }
@@ -167,7 +173,6 @@ function weatherScore(w) {
 }
 
 function renderTrail() {
-    saveDay(fmtDate(currentDate), dayData);
     const keys = Array.from({length: 7}, (_, i) => {
         const d = new Date(currentDate); d.setDate(d.getDate() - (6 - i)); return fmtDate(d);
     });
@@ -238,11 +243,15 @@ document.getElementById('nextBtn').onclick = () => {
 
 document.getElementById('addSched').onclick = () => {
     if (isFutureDate(currentDate)) return;
-    const timeVal = document.getElementById('timeInput').value;
+    const h = document.getElementById('hourSelect').value;
+    const m = document.getElementById('minSelect').value;
+    const timeVal = (h && m) ? h + ':' + m : '';
     const task = document.getElementById('taskInput').value.trim();
-    if (!timeVal || !task) return;
+    if (!task) return;
     dayData.schedule.push({ id: crypto.randomUUID(), time: timeVal, task: task });
     document.getElementById('taskInput').value = '';
+    document.getElementById('hourSelect').value = '';
+    document.getElementById('minSelect').value = '';
     renderSchedule(false); scheduleSave();
 };
 

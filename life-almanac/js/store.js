@@ -19,12 +19,15 @@ const setStorage = (key, value) => {
 };
 
 export const defaultDay = () => ({
-  schedule: [], habitsDone: {}, weather: null, diary: '', savedDiary: '', nothingToday: false
+  schedule: [], habitsDone: {}, weather: null, diary: '', savedDiary: '', nothingToday: false,
+  calories: [], finance: []
 });
 
 export const loadSettings = () => {
-  const settings = getStorage('settings', { theme: 'light', lang: 'en' });
+  const settings = getStorage('settings', { theme: 'light', lang: 'en', calGoal: 2000, currency: '฿' });
   if (!settings.lang) settings.lang = 'en';
+  if (!settings.calGoal) settings.calGoal = 2000;
+  if (!settings.currency) settings.currency = '฿';
   return settings;
 };
 

@@ -667,7 +667,6 @@ function renderHabitTrails(){
 
 // ═══════════ RENDER TRAIL ═══════════
 function renderTrail(){
-  saveDay(fmtDate(currentDate),dayData);
   const keys=Array.from({length:14},(_,i)=>{ const d=new Date(currentDate); d.setDate(d.getDate()-(13-i)); return fmtDate(d); });
   const bars=document.getElementById('trailBars'); const labels=document.getElementById('trailLabels');
   bars.innerHTML=''; labels.innerHTML='';
@@ -829,7 +828,12 @@ document.getElementById('foodName').addEventListener('keydown',e=>{ if(e.key==='
 document.getElementById('foodCal').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('addFood').click(); });
 document.getElementById('calGoalInput').addEventListener('change',e=>{
   const v=parseInt(e.target.value,10);
-  if(isNaN(v)||v<100) return;
+  if(isNaN(v)||v<100){
+    e.target.style.borderColor='#c0392b';
+    e.target.value=settings.calGoal||2000;
+    setTimeout(()=>{ e.target.style.borderColor=''; },1200);
+    return;
+  }
   settings.calGoal=v; saveSettings(settings); renderCalories(isFutureDate(currentDate));
 });
 
@@ -927,7 +931,11 @@ function renderOverview(){
   if(!habits.length) sEl.innerHTML=`<div class="empty">${t('addHabitToSeeStreaks')}</div>`;
   habits.forEach(h=>{ const streak=computeStreak(h,fmtDate(now)); const row=document.createElement('div'); row.className='streakLine'; row.innerHTML=`<span>${escapeHtml(h)}</span><span class="num">${streak}</span>`; sEl.appendChild(row); });
 
-  const mEl=document.getElementById('moodStats'); mEl.innerHTML='';\n  const counts={}; weatherKeys.forEach(k=>counts[k]=0);\n  dataArr.forEach(d=>{ if(d&&d.weather&&counts.hasOwnProperty(d.weather)) counts[d.weather]++; });\n  const maxC=Math.max(1,...Object.values(counts));\n  weatherKeys.forEach(k=>{ const h=Math.round(counts[k]/maxC*100); const mb=document.createElement('div'); mb.className='mb'; mb.innerHTML=`<div class="col" style="height:${h}%;background:${weatherColors[k]}"></div><span>${t('weather')[k]}</span>`; mEl.appendChild(mb); });
+  const mEl=document.getElementById('moodStats'); mEl.innerHTML='';
+  const counts={}; weatherKeys.forEach(k=>counts[k]=0);
+  dataArr.forEach(d=>{ if(d&&d.weather&&counts.hasOwnProperty(d.weather)) counts[d.weather]++; });
+  const maxC=Math.max(1,...Object.values(counts));
+  weatherKeys.forEach(k=>{ const h=Math.round(counts[k]/maxC*100); const mb=document.createElement('div'); mb.className='mb'; mb.innerHTML=`<div class="col" style="height:${h}%;background:${weatherColors[k]}"></div><span>${t('weather')[k]}</span>`; mEl.appendChild(mb); });
 
   // Finance monthly overview
   const fovEl=document.getElementById('finOverview'); fovEl.innerHTML='';
